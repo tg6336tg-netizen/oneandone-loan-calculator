@@ -7,18 +7,28 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predev": "node scripts/prepare-analysis-assets.mjs",
+    "prebuild": "node scripts/prepare-analysis-assets.mjs",
+    "test": "node --experimental-strip-types --test tests/registry.test.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
+    "pdfjs-dist": "^6.4.299",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@tesseract.js-data/eng": "^1.0.0",
+    "@tesseract.js-data/kor": "^1.0.0",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.88.0",
+    "pdf-lib": "^1.17.1",
     "typescript": "~6.0.3",
     "vite": "^8.3.4"
   },

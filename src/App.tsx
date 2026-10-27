@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import type { FormEvent } from 'react'
 import './App.css'
+
+const RegistryAnalysis = lazy(() => import('./RegistryAnalysis'))
 
 const policies = {
   seoulApartment: { label: '서울 아파트', ltv: 72 },
@@ -28,9 +30,9 @@ function App() {
     const ratio = ltv
     const score = Number(creditScore)
     const debt = Number(existingDebt)
-    if (![value, ratio, debt, score].every(Number.isFinite) || !Number.isSafeInteger(value) || !Number.isSafeInteger(debt) || !Number.isInteger(score) || value <= 0 || value > 100000000 || debt < 0 || debt > 100000000 || score < 0 || score > 1000) return
+    if (![value, ratio, debt, score].every(Number.isFinite) || !Number.isSafeInteger(value) || !Number.isSafeInteger(Math.round(debt * 10000)) || !Number.isInteger(score) || value <= 0 || value > 100000000 || debt < 0 || debt > 100000000 || score < 0 || score > 1000) return
     const eligible = score >= 600
-    const limit = eligible ? Math.max(0, value * 100 * ratio - debt * 10000) : 0
+    const limit = eligible ? Math.max(0, value * 100 * ratio - Math.round(debt * 10000)) : 0
     setResult({ limit, monthlyInterest: Math.round(limit * annualRate / 100 / 12), eligible })
   }
 
@@ -42,6 +44,9 @@ function App() {
         <h1>내 부동산의 가능성,<br />예상 한도를 확인하세요.</h1>
         <p>담보 유형과 선순위 대출, 신용점수를 입력해 내부 검토용 한도와 월 이자를 확인하세요.</p>
       </section>
+      <Suspense fallback={<p role="status">등기부 분석 도구를 불러오는 중…</p>}>
+        <RegistryAnalysis onApply={amount => { setDebtBasis('maximum'); setExistingDebt(String(amount / 10000)); setResult(null) }} onInvalidate={() => { setExistingDebt(''); setResult(null) }} />
+      </Suspense>
       <div className="calculator">
         <section className="panel">
           <h2>담보 정보 입력</h2><p className="muted">금액은 만원 단위로 입력해 주세요.</p>
@@ -59,7 +64,7 @@ function App() {
               <option value="maximum">채권최고액 기준</option>
             </select>
             <label htmlFor="debt">{debtLabel} (만원)</label>
-            <input id="debt" type="number" min="0" max="100000000" step="1" required value={existingDebt} onChange={e => setExistingDebt(e.target.value)} />
+            <input id="debt" type="number" min="0" max="100000000" step="0.0001" required value={existingDebt} onChange={e => setExistingDebt(e.target.value)} />
             <p className="policy-note">{debtBasis === 'principal' ? '선순위 대출의 실제 원금 잔액을 입력하세요.' : '등기상 선순위 채권최고액을 직접 입력하세요. 원금에 임의 배율을 적용하지 않습니다.'}</p>
             <label htmlFor="credit-score">신용점수 (0~1000점)</label>
             <input id="credit-score" type="number" min="0" max="1000" step="1" required value={creditScore} onChange={e => setCreditScore(e.target.value)} />

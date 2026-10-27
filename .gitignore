@@ -28,3 +28,8 @@ dist-ssr
 .env.*
 !.env.example
 .npm-cache/
+
+# Generated local PDF/OCR runtime assets and test output
+public/analysis-assets/
+playwright-report/
+test-results/

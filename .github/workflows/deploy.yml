@@ -33,6 +33,8 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+      - name: Lint and test registry review rules
+        run: npm run lint && npm test
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
